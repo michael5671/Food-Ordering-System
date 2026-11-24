@@ -1,0 +1,112 @@
+[1mdiff --git a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/OrderDomainService.java b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/OrderDomainService.java[m
+[1mindex ec47285..92f8bef 100644[m
+[1m--- a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/OrderDomainService.java[m
+[1m+++ b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/OrderDomainService.java[m
+[36m@@ -1,4 +1,22 @@[m
+ package com.food.ordering.system.order.service.domain;[m
+ [m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Order;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Restaurant;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.event.OrderCancelledEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.event.OrderPaidEvent;[m
+[32m+[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+ public interface OrderDomainService {[m
+[32m+[m
+[32m+[m[32m    OrderCreatedEvent validateAndInitiate(Order order, Restaurant restaurant);[m
+[32m+[m
+[32m+[m[32m    OrderPaidEvent payOrder(Order order);[m
+[32m+[m
+[32m+[m[32m    void approveOrder(Order order);[m
+[32m+[m
+[32m+[m[32m    OrderCancelledEvent cancelOrderPayment(Order order, List<String> failureMessages);[m
+[32m+[m
+[32m+[m[32m    void cancelOrder(Order order, List<String> failureMessages);[m
+ }[m
+[1mdiff --git a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCancelledEvent.java b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCancelledEvent.java[m
+[1mindex c6806ef..ac4c8d6 100644[m
+[1m--- a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCancelledEvent.java[m
+[1m+++ b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCancelledEvent.java[m
+[36m@@ -1,4 +1,12 @@[m
+ package com.food.ordering.system.order.service.domain.event;[m
+ [m
+[31m-public class OrderCancelledEvent {[m
+[32m+[m[32mimport com.food.ordering.system.domain.event.DomainEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Order;[m
+[32m+[m
+[32m+[m[32mimport java.time.ZonedDateTime;[m
+[32m+[m
+[32m+[m[32mpublic class OrderCancelledEvent extends OrderEvent {[m
+[32m+[m[32m    public OrderCancelledEvent(Order order, ZonedDateTime createdAt){[m
+[32m+[m[32m        super(order, createdAt);[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCreatedEvent.java b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCreatedEvent.java[m
+[1mindex 15877e8..feb68ad 100644[m
+[1m--- a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCreatedEvent.java[m
+[1m+++ b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderCreatedEvent.java[m
+[36m@@ -1,4 +1,12 @@[m
+ package com.food.ordering.system.order.service.domain.event;[m
+ [m
+[31m-public class OrderCreatedEvent {[m
+[32m+[m[32mimport com.food.ordering.system.domain.event.DomainEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Order;[m
+[32m+[m
+[32m+[m[32mimport java.time.ZonedDateTime;[m
+[32m+[m
+[32m+[m[32mpublic class OrderCreatedEvent extends OrderEvent {[m
+[32m+[m[32m    public OrderCreatedEvent(Order order, ZonedDateTime createdAt) {[m
+[32m+[m[32m        super(order, createdAt);[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderEvent.java b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderEvent.java[m
+[1mindex c50bc74..ceb3fe6 100644[m
+[1m--- a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderEvent.java[m
+[1m+++ b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderEvent.java[m
+[36m@@ -1,4 +1,24 @@[m
+ package com.food.ordering.system.order.service.domain.event;[m
+ [m
+[31m-public class OrderEvent {[m
+[32m+[m[32mimport com.food.ordering.system.domain.event.DomainEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Order;[m
+[32m+[m
+[32m+[m[32mimport java.time.ZonedDateTime;[m
+[32m+[m
+[32m+[m[32mpublic abstract class OrderEvent implements DomainEvent<Order> {[m
+[32m+[m[32m    private final Order order;[m
+[32m+[m[32m    private final ZonedDateTime createdAt;[m
+[32m+[m
+[32m+[m[32m    public OrderEvent(Order order, ZonedDateTime createdAt) {[m
+[32m+[m[32m        this.order = order;[m
+[32m+[m[32m        this.createdAt = createdAt;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public Order getOrder() {[m
+[32m+[m[32m        return order;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public ZonedDateTime getCreatedAt() {[m
+[32m+[m[32m        return createdAt;[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderPaidEvent.java b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderPaidEvent.java[m
+[1mindex 16964cc..3061e9c 100644[m
+[1m--- a/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderPaidEvent.java[m
+[1m+++ b/order-service/order-domain/order-domain-core/src/main/java/com/food/ordering/system/order/service/domain/event/OrderPaidEvent.java[m
+[36m@@ -1,4 +1,13 @@[m
+ package com.food.ordering.system.order.service.domain.event;[m
+ [m
+[31m-public class OrderPaidEvent {[m
+[32m+[m[32mimport com.food.ordering.system.domain.event.DomainEvent;[m
+[32m+[m[32mimport com.food.ordering.system.order.service.domain.entity.Order;[m
+[32m+[m
+[32m+[m[32mimport java.time.ZonedDateTime;[m
+[32m+[m
+[32m+[m[32mpublic class OrderPaidEvent extends OrderEvent {[m
+[32m+[m
+[32m+[m[32m    public OrderPaidEvent(Order order, ZonedDateTime createdAt) {[m
+[32m+[m[32m        super(order, createdAt);[m
+[32m+[m[32m    }[m
+ }[m
